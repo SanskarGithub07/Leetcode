@@ -1,58 +1,79 @@
 #include<bits/stdc++.h>
 using namespace std;
 
-// Celebrity Problem
-int celebrity(vector<vector<int>> &M, int n){
-    stack<int> stk;
-    for(int i = 0 ; i < n ; i++){
-        stk.push(i);
-    }
+class nStacks {
+    public:
+        int *arr;
+        int *top;
+        int *next;
+        int freeSpot;
 
-    while(stk.size() != 1){
-        int A = stk.top();
-        stk.pop();
-        int B = stk.top();
-        stk.pop(); 
+        nStacks(int N, int S){
+            this->arr = new int[S];
+            this->top = new int[N];
+            this->next = new int[S];
+            this->freeSpot = 0;
 
-        if(M[A][B]){
-            stk.push(B);
+            for(int i = 0 ; i < N ; i++){
+                this->top[i] = -1;
+            }
+
+            for(int i = 0 ; i < S ; i++){
+                this->next[i] = i + 1;
+            }
+            this->next[S - 1] = -1;
         }
-        else if(M[B][A]){
-            stk.push(A);
+
+        bool push(int x, int m){
+            if(freeSpot == -1){
+                return false;
+            }
+
+            //find index
+            int index = freeSpot;
+
+            //insert element into array
+            arr[index] = x;
+
+            //update freeSpot
+            freeSpot = next[index];
+
+            //update next array because element has been inserted
+            next[index] = top[m - 1];
+
+            //update top
+            top[m - 1] = index;
+
+            return true;
         }
-    }
 
-    int potentialCelebrity = stk.top();
-    stk.pop();
+        int pop(int m){
 
-    bool rowCheck = true;
-    for(int i = 0 ; i < n ; i++){
-        if(M[potentialCelebrity][i] == 1){
-            rowCheck = false;
-            return -1;
-        }
-    }
-
-    bool columnCheck = true;
-    for(int row = 0 ; row < n ; row++){
-        if(potentialCelebrity != row){
-            if(M[row][potentialCelebrity] == 0){
-                columnCheck = false;
+            //Check for the stack being empty
+            if(top[m - 1] == -1){
                 return -1;
             }
+
+            //Write everything in reverse order.
+            int index = top[m - 1];
+
+            top[m - 1] = next[index];
+
+            next[index] = freeSpot;
+
+            freeSpot = index;
+
+            return arr[index];
         }
-    }
-
-    if(rowCheck && columnCheck){
-        return potentialCelebrity;
-    }
-
-    return -1;
-}
+};
 
 int main(){
-    vector<vector<int>> M ={{0, 1, 0}, {0, 0, 0}, {0, 1, 0}};
-    int n = 3;
+    nStacks * nStks = new nStacks(3, 6);
+    cout << nStks->push(10, 1) << endl;
+    cout << nStks->push(20, 1) << endl;
+    cout << nStks->push(30, 2) << endl;
+    cout << nStks->pop(1) << endl;
+    cout << nStks->pop(2) << endl;
 
-    cout << celebrity(M, n) << endl; 
+    return 0;
 }
