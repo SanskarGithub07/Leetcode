@@ -1,49 +1,62 @@
 #include<bits/stdc++.h>
 using namespace std;
 
-void heapify(vector<int> &arr, int n, int i){
-    int largest = i;
-    int left = 2 * i + 1;
-    int right = 2 * i + 2;
+//Time Complexity: O(n)
+//Space Complexity: O(n)
 
-    if(left < n && arr[left] > arr[largest]){
-        largest = left;
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode() : val(0), left(nullptr), right(nullptr) {}
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+    TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+};
+
+int countNodes(TreeNode * root){
+    if(root == NULL){
+        return 0;
     }
 
-    if(right < n && arr[right] > arr[largest]){
-        largest = right;
-    }
-
-    if(largest != i){
-        swap(arr[largest], arr[i]);
-        heapify(arr, n, largest);
-    }
-
-    return;
+    return 1 + countNodes(root->left) + countNodes(root->right);
 }
 
-void heapSort(vector<int> &arr, int n){
+bool isCBT(TreeNode * root, int i, int nodeCount){
+   if(root == NULL){
+        return true;
+   }
 
-    for(int i = n / 2 - 1 ; i >= 0 ; i--){
-        heapify(arr, n, i);
+   if(i > nodeCount){
+        return false;
+   }
+
+   bool leftAns = isCBT(root->left, 2 * i + 1, nodeCount);
+   bool rightAns = isCBT(root->right, 2 * i + 2 , nodeCount);
+
+   return leftAns && rightAns;
+}
+
+bool isMaxHeap(TreeNode * root){
+    if(root->left == NULL && root->right == NULL){
+        return true;
     }
 
-    for(int i = 0 ; i < arr.size() ; i++){
-        swap(arr[0], arr[n - 1]);
-        n--;
-        heapify(arr, n, 0);
+    else if(root->right == NULL){
+        return root->val > root->left->val;
+    }
+
+    else{
+        bool left = isMaxHeap(root->left);
+        bool right = isMaxHeap(root->right);
+
+        return left && right && (root->val > root->left->val && root->val > root->right->val);
     }
 }
 
-int main(){
-    vector<int> arr = {6,2,11,3,4,1,0};
-    int n = arr.size();
+bool isBTHeap(TreeNode * root, int nodeCount){
+    if(isCBT(root, 0, nodeCount) && isMaxHeap(root)){
+        return true;
+    }
 
-    heapSort(arr, n);
-
-    for(int i = 0 ; i < arr.size() ; i++){
-        cout << arr[i] << " ";
-    }cout << endl;
-
-    return 0;
+    return false;
 }
