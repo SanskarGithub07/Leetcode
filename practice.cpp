@@ -1,62 +1,64 @@
 #include<bits/stdc++.h>
 using namespace std;
 
-//Time Complexity: O(n)
-//Space Complexity: O(n)
+// Time Complexity: O((m + n)log (m + n))
+// Space Complexity: O(m + n) 
 
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode() : val(0), left(nullptr), right(nullptr) {}
-    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
-    TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
-};
+void heapify(vector<int> &mergedHeap, int n, int i){
+    int largest = i;
+    int left = 2 * i + 1;
+    int right = 2 * i + 2;
 
-int countNodes(TreeNode * root){
-    if(root == NULL){
-        return 0;
+    if(left < n && mergedHeap[left] > mergedHeap[largest]){
+        largest = left;
     }
 
-    return 1 + countNodes(root->left) + countNodes(root->right);
+    if(right < n && mergedHeap[right] > mergedHeap[largest]){
+        largest = right;
+    }
+
+    if(largest != i){
+        swap(mergedHeap[largest], mergedHeap[i]);
+        heapify(mergedHeap, n, largest);
+    }
+
+    return;
 }
 
-bool isCBT(TreeNode * root, int i, int nodeCount){
-   if(root == NULL){
-        return true;
-   }
-
-   if(i > nodeCount){
-        return false;
-   }
-
-   bool leftAns = isCBT(root->left, 2 * i + 1, nodeCount);
-   bool rightAns = isCBT(root->right, 2 * i + 2 , nodeCount);
-
-   return leftAns && rightAns;
-}
-
-bool isMaxHeap(TreeNode * root){
-    if(root->left == NULL && root->right == NULL){
-        return true;
-    }
-
-    else if(root->right == NULL){
-        return root->val > root->left->val;
-    }
-
-    else{
-        bool left = isMaxHeap(root->left);
-        bool right = isMaxHeap(root->right);
-
-        return left && right && (root->val > root->left->val && root->val > root->right->val);
+void buildMaxHeap(vector<int> &mergedHeap, int n){
+    for(int i = n / 2 - 1 ; i >= 0 ; i--){
+        heapify(mergedHeap, n, i);
     }
 }
 
-bool isBTHeap(TreeNode * root, int nodeCount){
-    if(isCBT(root, 0, nodeCount) && isMaxHeap(root)){
-        return true;
+vector<int> merge2BMH(vector<int> &MH1, vector<int> &MH2){
+    //Step1: Merge both the vectors into a single vector
+    vector<int> mergedHeap;
+
+    for(int i = 0 ; i < MH1.size() ; i++){
+        mergedHeap.push_back(MH1[i]);
     }
 
-    return false;
+    for(int i = 0 ; i < MH2.size() ; i++){
+        mergedHeap.push_back(MH2[i]);
+    }
+
+    //Step2: Use buildMaxHeap and heapify functions to get the final mergedHeap.
+    int n = mergedHeap.size();
+    buildMaxHeap(mergedHeap, n);
+
+    return mergedHeap;
+}
+
+int main(){
+    vector<int> MH1 = {10, 5, 6, 2};
+    vector<int> MH2 = {12, 7, 9};
+
+    vector<int> ans = merge2BMH(MH1, MH2);
+
+    for(int i = 0 ; i < ans.size() ; i++){
+        cout << ans[i] << " ";
+    }cout << endl;
+
+    return 0;
 }
