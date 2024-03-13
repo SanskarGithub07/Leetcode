@@ -6,19 +6,28 @@ class Solution
 public:
     int pivotInteger(int n)
     {
-        int sum = (n * (n + 1)) / 2;
-        long runningSum = 0;
-        int i = 1;
+        // Binary Search Approach
+        int left = 1;
+        int right = n;
 
-        while (i <= n)
+        while (left <= right)
         {
-            sum -= i - 1;
-            runningSum += i;
-            if (runningSum == sum)
+            int mid = left + (right - left) / 2;
+            int sumTillMid = (mid * (mid + 1)) / 2;
+            int size = n - mid + 1;
+            int remainingSum = (size * (2 * mid + (size - 1))) / 2;
+            if (remainingSum == sumTillMid)
             {
-                return i;
+                return mid;
             }
-            i++;
+            else if (remainingSum > sumTillMid)
+            {
+                left = mid + 1;
+            }
+            else
+            {
+                right = mid - 1;
+            }
         }
 
         return -1;
