@@ -1,26 +1,73 @@
 #include<bits/stdc++.h>
 using namespace std;
 
+#define TOTAL_NUMBER_ALPHABETS 26
+
+class TrieNode{
+    public:
+    char data;
+    TrieNode * children[TOTAL_NUMBER_ALPHABETS];
+    bool isTerminal;
+
+    TrieNode(char ch){
+        this->data = ch;
+        for(int i = 0 ; i < 26 ; i++){
+            this->children[i] = NULL;
+        }
+        this->isTerminal = false;
+    }
+};
+
 class Solution {
 public:
-    string findShortestRoot(string &word, unordered_set<string> &rootMap){  
-        string currentRoot = "";
-        for(int i = 0 ; i < word.length() ; i++){
-            currentRoot += word[i];
-            if(rootMap.find(currentRoot) != rootMap.end()){
-                return currentRoot;
-            }
+    bool findShortestRoot(TrieNode * root, string word, string &ans){  
+         if(root->isTerminal){
+            return true;
         }
 
-        return word;
+        if(word.length() == 0){
+            return root->isTerminal;
+        }
+
+        TrieNode * child;
+        int index = word[0] - 'a';
+
+        if(root->children[index] != NULL){
+            child = root->children[index];
+            ans += child->data;
+        }
+        else{
+            return false;
+        }
+
+        return findShortestRoot(child, word.substr(1), ans);
+    }
+
+    void insertIntoTrie(TrieNode * root, string word){
+        if(word.length() == 0){
+            root->isTerminal = true;
+            return;
+        }
+
+        TrieNode * child;
+        int index = word[0] - 'a';
+
+        if(root->children[index] != NULL){
+            child = root->children[index];
+        }
+        else{
+            child = new TrieNode(word[0]);
+            root->children[index] = child;
+        }
+
+        insertIntoTrie(child, word.substr(1));
     }
 
     string replaceWords(vector<string>& dictionary, string sentence){
-        unordered_set<string> rootMap;
         vector<string> wordArray;
-
-        for(auto root : dictionary){
-            rootMap.insert(root);
+        TrieNode * root = new TrieNode('\0');
+        for(auto word : dictionary){
+            insertIntoTrie(root, word);
         }
 
         string temp = "";
@@ -36,8 +83,13 @@ public:
 
         for(int i = 0 ; i < wordArray.size() ; i++){
             string word = wordArray[i];
-            string shortestRoot = findShortestRoot(word, rootMap);
-            wordArray[i] = shortestRoot;
+            string ans = "";
+            if(findShortestRoot(root, word, ans)){
+                wordArray[i] = ans;
+            }
+            else{
+                wordArray[i] = word;
+            }
         }
 
         string ans = "";
