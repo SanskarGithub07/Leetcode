@@ -12,7 +12,7 @@ public:
             }
             else if(s[i] == 'a' && !stk.empty()){
                 stk.pop();
-                ans++;2678
+                ans++;
             }
         }
 
